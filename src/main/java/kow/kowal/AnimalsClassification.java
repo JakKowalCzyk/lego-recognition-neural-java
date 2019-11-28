@@ -84,11 +84,11 @@ public class AnimalsClassification {
     protected static int height = 100;
     protected static int width = 100;
     protected static int channels = 3;
-    protected static int batchSize = 20;
+    protected static int batchSize = 10;
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
-    protected static int epochs = 50;
+    protected static int epochs = 30;
     protected static double splitTrainTest = 0.8;
     protected static boolean save = false;
     protected static int maxPathsPerLabel = 18;
@@ -96,12 +96,6 @@ public class AnimalsClassification {
     protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
     private int numLabels;
 
-    public static MultiLayerNetwork customModel() {
-        /**
-         * Use this method to build your own custom model.
-         **/
-        return null;
-    }
 
     public static void main(String[] args) throws Exception {
         new AnimalsClassification().run(args);
@@ -135,15 +129,15 @@ public class AnimalsClassification {
          * Data Setup -> transformation
          *  - Transform = how to tranform images and generate large dataset to train on
          **/
-        ImageTransform flipTransform1 = new FlipImageTransform(rng);
-        ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
-        ImageTransform warpTransform = new WarpImageTransform(rng, 42);
-        boolean shuffle = false;
-        List<Pair<ImageTransform, Double>> pipeline = Arrays.asList(new Pair<>(flipTransform1, 0.9),
-                new Pair<>(flipTransform2, 0.8),
-                new Pair<>(warpTransform, 0.5));
-
-        ImageTransform transform = new PipelineImageTransform(pipeline, shuffle);
+//        ImageTransform flipTransform1 = new FlipImageTransform(rng);
+//        ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
+//        ImageTransform warpTransform = new WarpImageTransform(rng, 42);
+//        boolean shuffle = false;
+//        List<Pair<ImageTransform, Double>> pipeline = Arrays.asList(new Pair<>(flipTransform1, 0.9),
+//                new Pair<>(flipTransform2, 0.8),
+//                new Pair<>(warpTransform, 0.5));
+//
+//        ImageTransform transform = new PipelineImageTransform(pipeline, shuffle);
         /**
          * Data Setup -> normalization
          *  - how to normalize images and generate large dataset to train on
@@ -162,9 +156,6 @@ public class AnimalsClassification {
                 break;
             case "AlexNet":
                 network = alexnetModel();
-                break;
-            case "custom":
-                network = customModel();
                 break;
             default:
                 throw new InvalidInputTypeException("Incorrect model provided.");
@@ -196,18 +187,18 @@ public class AnimalsClassification {
         network.setListeners(new StatsListener(statsStorage), new ScoreIterationListener(1), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
 
         // Train without transformations
-        trainRR.initialize(trainData, null);
+        trainRR.initialize(trainData);
         trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, numLabels);
         scaler.fit(trainIter);
         trainIter.setPreProcessor(scaler);
         network.fit(trainIter, epochs);
 
-        // Train with transformations
-        trainRR.initialize(trainData, transform);
-        trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, numLabels);
-        scaler.fit(trainIter);
-        trainIter.setPreProcessor(scaler);
-        network.fit(trainIter, epochs);
+//        // Train with transformations
+////        trainRR.initialize(trainData, transform);
+//        trainIter = new RecordReaderDataSetIterator(trainRR, batchSize, 1, numLabels);
+////        scaler.fit(trainIter);
+////        trainIter.setPreProcessor(scaler);
+//        network.fit(trainIter, epochs);
 
         // Example on how to get predict results with trained model. Result for first example in minibatch is printed
         trainIter.reset();
@@ -240,7 +231,7 @@ public class AnimalsClassification {
     }
 
     private SubsamplingLayer maxPool(String name, int[] kernel) {
-        return new SubsamplingLayer.Builder(kernel, new int[]{2, 2}).name(name).build();
+        return new SubsamplingLayer.Builder(PoolingType.AVG, kernel, new int[]{2, 2}, new int[]{0,0}).name(name).build();
     }
 
     private DenseLayer fullyConnected(String name, int out, double bias, double dropOut, Distribution dist) {
@@ -257,13 +248,12 @@ public class AnimalsClassification {
                 .l2(0.005)
                 .activation(Activation.RELU)
                 .weightInit(WeightInit.XAVIER)
-//            .updater(new Nadam(1e-4))
                 .updater(new AdaDelta())
                 .list()
-                .layer(0, convInit("cnn1", channels, 50, new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 0))
+                .layer(0, convInit("cnn1", channels, 50, new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 1))
                 .layer(1, maxPool("maxpool1", new int[]{2, 2}))
-                .layer(2, conv5x5("cnn2", 100, new int[]{5, 5}, new int[]{1, 1}, 0))
-                .layer(3, maxPool("maxool2", new int[]{2, 2}))
+                .layer(2, conv5x5("cnn2", 100, new int[]{5, 5}, new int[]{1, 1}, 1  ))
+                .layer(3, maxPool("maxpool2", new int[]{2, 2}))
                 .layer(4, new DenseLayer.Builder().nOut(500).build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .nOut(numLabels)
