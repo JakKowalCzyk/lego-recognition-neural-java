@@ -83,8 +83,8 @@ import static java.lang.Math.toIntExact;
 
 public class LegoClassification {
     private static final Logger log = LoggerFactory.getLogger(LegoClassification.class);
-    protected static int height=32;
-    protected static int width=32;
+    protected static int height=64;
+    protected static int width=64;
 
     protected static int channels = 3;
     protected static int batchSize=150;// tested 50, 100, 200
