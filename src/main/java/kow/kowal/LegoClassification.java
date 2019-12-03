@@ -39,6 +39,7 @@ import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.api.IterationListener;
 import org.deeplearning4j.optimize.listeners.EvaluativeListener;
+import org.deeplearning4j.optimize.listeners.PerformanceListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
@@ -90,14 +91,14 @@ public class LegoClassification {
     protected static int batchSize=150;// tested 50, 100, 200
     protected static long seed = 123;
     protected static Random rng = new Random(seed);
-    protected static int iterations = 1;
-    protected static int nEpochs = 500; // tested 50, 100, 200
+    protected static int iterations = 5;
+    protected static int nEpochs = 50; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
     private static String OS = null;
 
-    protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
@@ -167,7 +168,7 @@ public class LegoClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(iterations));
+        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(iterations), new PerformanceListener(1));
 
         /**
          * Load data
