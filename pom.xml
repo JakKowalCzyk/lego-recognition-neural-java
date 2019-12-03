@@ -17,6 +17,17 @@
                     <target>8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>kow.kowal.AnimalsClassification</mainClass>
+                    <arguments>
+                        <argument>argument1</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
@@ -32,10 +43,26 @@
             <artifactId>deeplearning4j-ui_2.11</artifactId>
             <version>1.0.0-beta4</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.nd4j</groupId>-->
+<!--            <artifactId>nd4j-native-platform</artifactId>-->
+<!--            <version>1.0.0-beta4</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-native-platform</artifactId>
+            <artifactId>nd4j-cuda-10.1-platform</artifactId>
             <version>1.0.0-beta4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-cuda-10.1</artifactId>
+            <version>1.0.0-beta4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>cuda</artifactId>
+            <version>10.1-7.5-1.5</version>
+            <classifier>linux-x86_64-redist</classifier>
         </dependency>
     </dependencies>
 
