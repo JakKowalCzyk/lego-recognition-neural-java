@@ -121,7 +121,7 @@ public class LegoClassification {
         if (isWindows()) {
             pathname = "C:\\projects\\lego-recognition-neural-java\\src\\main\\resources\\lego";
         }else {
-            pathname = "~/lego-recognition-neural-java/src/main/resources/lego";
+            pathname = "./src/main/resources/lego";
         }
         File mainPath = new File(pathname);
         FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, rng);
