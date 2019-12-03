@@ -97,7 +97,7 @@ public class LegoClassification {
     private int numLabels;
     private static String OS = null;
 
-    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
