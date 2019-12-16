@@ -164,9 +164,9 @@ public class LegoClassification {
             case "x":
                 network = init();
                 break;
-            case "res":
-                network = new InceptionRestNet().init();
-                break;
+//            case "res":
+//                network = new InceptionRestNet().init();
+//                break;
             default:
                 throw new InvalidInputTypeException("Incorrect model provided.");
         }
