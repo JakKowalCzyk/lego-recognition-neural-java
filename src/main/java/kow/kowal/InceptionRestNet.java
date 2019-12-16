@@ -17,14 +17,15 @@ import org.nd4j.linalg.lossfunctions.LossFunctions;
 public class InceptionRestNet {
 
     private long seed = 1234;
-    private int[] inputShape = new int[] {3, 160, 160};
+    private int[] inputShape = new int[]{3, 160, 160};
     private int numClasses = 2;
     private IUpdater updater = new RmsProp(0.1, 0.96, 0.001);
     private CacheMode cacheMode = CacheMode.NONE;
     private WorkspaceMode workspaceMode = WorkspaceMode.ENABLED;
     private ConvolutionLayer.AlgoMode cudnnAlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST;
 
-    public InceptionRestNet() {}
+    public InceptionRestNet() {
+    }
 
 
     public ComputationGraph init() {
@@ -36,7 +37,7 @@ public class InceptionRestNet {
                 .addLayer("bottleneck", new DenseLayer.Builder().nIn(5376).nOut(embeddingSize).build(),
                         "avgpool")
                 // Embeddings
-                .addVertex("embeddings", new L2NormalizeVertex(new int[] {1}, 1e-10), "bottleneck")
+                .addVertex("embeddings", new L2NormalizeVertex(new int[]{1}, 1e-10), "bottleneck")
                 // Output
                 .addLayer("outputLayer",
                         new CenterLossOutputLayer.Builder()
@@ -71,7 +72,7 @@ public class InceptionRestNet {
         graph
                 // stem
                 .addLayer("stem-cnn1",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2})
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2})
                                 .nIn(inputShape[0]).nOut(32)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         input)
@@ -80,7 +81,7 @@ public class InceptionRestNet {
                                 .build(),
                         "stem-cnn1")
                 .addLayer("stem-cnn2",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}).nIn(32).nOut(32)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}).nIn(32).nOut(32)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "stem-batch1")
                 .addLayer("stem-batch2",
@@ -88,7 +89,7 @@ public class InceptionRestNet {
                                 .build(),
                         "stem-cnn2")
                 .addLayer("stem-cnn3",
-                        new ConvolutionLayer.Builder(new int[] {3, 3})
+                        new ConvolutionLayer.Builder(new int[]{3, 3})
                                 .convolutionMode(ConvolutionMode.Same).nIn(32).nOut(64)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "stem-batch2")
@@ -96,10 +97,10 @@ public class InceptionRestNet {
                         .nOut(64).build(), "stem-cnn3")
 
                 .addLayer("stem-pool4", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX,
-                        new int[] {3, 3}, new int[] {2, 2}).build(), "stem-batch3")
+                        new int[]{3, 3}, new int[]{2, 2}).build(), "stem-batch3")
 
                 .addLayer("stem-cnn5",
-                        new ConvolutionLayer.Builder(new int[] {1, 1}).nIn(64).nOut(80)
+                        new ConvolutionLayer.Builder(new int[]{1, 1}).nIn(64).nOut(80)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "stem-pool4")
                 .addLayer("stem-batch5",
@@ -107,7 +108,7 @@ public class InceptionRestNet {
                                 .build(),
                         "stem-cnn5")
                 .addLayer("stem-cnn6",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}).nIn(80).nOut(128)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}).nIn(80).nOut(128)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "stem-batch5")
                 .addLayer("stem-batch6",
@@ -115,7 +116,7 @@ public class InceptionRestNet {
                                 .build(),
                         "stem-cnn6")
                 .addLayer("stem-cnn7",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(128)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(128)
                                 .nOut(192).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "stem-batch6")
@@ -131,7 +132,7 @@ public class InceptionRestNet {
         graph
                 // 3x3
                 .addLayer("reduceA-cnn1",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(192)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(192)
                                 .nOut(192).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "resnetA")
@@ -141,7 +142,7 @@ public class InceptionRestNet {
                         "reduceA-cnn1")
                 // 1x1 -> 3x3 -> 3x3
                 .addLayer("reduceA-cnn2",
-                        new ConvolutionLayer.Builder(new int[] {1, 1})
+                        new ConvolutionLayer.Builder(new int[]{1, 1})
                                 .convolutionMode(ConvolutionMode.Same).nIn(192).nOut(128)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "resnetA")
@@ -150,7 +151,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceA-cnn2")
                 .addLayer("reduceA-cnn3",
-                        new ConvolutionLayer.Builder(new int[] {3, 3})
+                        new ConvolutionLayer.Builder(new int[]{3, 3})
                                 .convolutionMode(ConvolutionMode.Same).nIn(128).nOut(128)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "reduceA-batch2")
@@ -159,7 +160,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceA-cnn3")
                 .addLayer("reduceA-cnn4",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(128)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(128)
                                 .nOut(192).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "reduceA-batch3")
@@ -169,8 +170,8 @@ public class InceptionRestNet {
                         "reduceA-cnn4")
                 // maxpool
                 .addLayer("reduceA-pool5",
-                        new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {3, 3},
-                                new int[] {2, 2}).build(),
+                        new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3},
+                                new int[]{2, 2}).build(),
                         "resnetA")
                 // -->
                 .addVertex("reduceA", new MergeVertex(), "reduceA-batch1", "reduceA-batch4", "reduceA-pool5");
@@ -184,12 +185,12 @@ public class InceptionRestNet {
         graph
                 // 3x3 pool
                 .addLayer("reduceB-pool1",
-                        new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[] {3, 3},
-                                new int[] {2, 2}).build(),
+                        new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX, new int[]{3, 3},
+                                new int[]{2, 2}).build(),
                         "resnetB")
                 // 1x1 -> 3x3
                 .addLayer("reduceB-cnn2",
-                        new ConvolutionLayer.Builder(new int[] {1, 1})
+                        new ConvolutionLayer.Builder(new int[]{1, 1})
                                 .convolutionMode(ConvolutionMode.Same).nIn(576).nOut(256)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "resnetB")
@@ -198,7 +199,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceB-cnn2")
                 .addLayer("reduceB-cnn3",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(256)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(256)
                                 .nOut(256).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "reduceB-batch1")
@@ -208,7 +209,7 @@ public class InceptionRestNet {
                         "reduceB-cnn3")
                 // 1x1 -> 3x3
                 .addLayer("reduceB-cnn4",
-                        new ConvolutionLayer.Builder(new int[] {1, 1})
+                        new ConvolutionLayer.Builder(new int[]{1, 1})
                                 .convolutionMode(ConvolutionMode.Same).nIn(576).nOut(256)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "resnetB")
@@ -217,7 +218,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceB-cnn4")
                 .addLayer("reduceB-cnn5",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(256)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(256)
                                 .nOut(256).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "reduceB-batch3")
@@ -227,7 +228,7 @@ public class InceptionRestNet {
                         "reduceB-cnn5")
                 // 1x1 -> 3x3 -> 3x3
                 .addLayer("reduceB-cnn6",
-                        new ConvolutionLayer.Builder(new int[] {1, 1})
+                        new ConvolutionLayer.Builder(new int[]{1, 1})
                                 .convolutionMode(ConvolutionMode.Same).nIn(576).nOut(256)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "resnetB")
@@ -236,7 +237,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceB-cnn6")
                 .addLayer("reduceB-cnn7",
-                        new ConvolutionLayer.Builder(new int[] {3, 3})
+                        new ConvolutionLayer.Builder(new int[]{3, 3})
                                 .convolutionMode(ConvolutionMode.Same).nIn(256).nOut(256)
                                 .cudnnAlgoMode(cudnnAlgoMode).build(),
                         "reduceB-batch5")
@@ -245,7 +246,7 @@ public class InceptionRestNet {
                                 .build(),
                         "reduceB-cnn7")
                 .addLayer("reduceB-cnn8",
-                        new ConvolutionLayer.Builder(new int[] {3, 3}, new int[] {2, 2}).nIn(256)
+                        new ConvolutionLayer.Builder(new int[]{3, 3}, new int[]{2, 2}).nIn(256)
                                 .nOut(256).cudnnAlgoMode(cudnnAlgoMode)
                                 .build(),
                         "reduceB-batch6")
@@ -263,12 +264,11 @@ public class InceptionRestNet {
 
         // Average pooling
         graph.addLayer("avgpool",
-                new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.AVG, new int[] {1, 1}).build(),
+                new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.AVG, new int[]{1, 1}).build(),
                 "resnetC");
 
         return graph;
     }
-
 
 
 }
