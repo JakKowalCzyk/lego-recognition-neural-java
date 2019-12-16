@@ -25,15 +25,17 @@ import org.datavec.image.transform.FlipImageTransform;
 import org.datavec.image.transform.ImageTransform;
 import org.deeplearning4j.api.storage.StatsStorage;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
-import org.deeplearning4j.nn.conf.GradientNormalization;
-import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
-import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.api.NeuralNetwork;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
+import org.deeplearning4j.nn.conf.*;
 import org.deeplearning4j.nn.conf.distribution.Distribution;
 import org.deeplearning4j.nn.conf.distribution.GaussianDistribution;
 import org.deeplearning4j.nn.conf.distribution.NormalDistribution;
+import org.deeplearning4j.nn.conf.graph.ElementWiseVertex;
 import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.inputs.InvalidInputTypeException;
 import org.deeplearning4j.nn.conf.layers.*;
+import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
 import org.deeplearning4j.optimize.api.InvocationType;
@@ -46,6 +48,8 @@ import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.util.ModelSerializer;
+import org.deeplearning4j.zoo.model.InceptionResNetV1;
+import org.deeplearning4j.zoo.model.helper.InceptionResNetHelper;
 import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.DataSet;
@@ -54,6 +58,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultipleEpochsIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.nd4j.linalg.learning.config.AdaDelta;
+import org.nd4j.linalg.learning.config.IUpdater;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,34 +89,43 @@ import static java.lang.Math.toIntExact;
 
 public class LegoClassification {
     private static final Logger log = LoggerFactory.getLogger(LegoClassification.class);
-    protected static int height=64;
-    protected static int width=64;
+    protected static int height = 64;
+    protected static int width = 64;
 
     protected static int channels = 3;
-    protected static int batchSize=150;// tested 50, 100, 200
-    protected static long seed = 123;
+    protected static int batchSize = 150;// tested 50, 100, 200
+    protected static long seed = 1234;
     protected static Random rng = new Random(seed);
     protected static int iterations = 5;
-    protected static int nEpochs = 50; // tested 50, 100, 200
+    protected static int nEpochs = 2; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
     private static String OS = null;
+    //     protected static long seed = 1234;
+    private int[] inputShape = new int[]{3, 299, 299};
+    private int numClasses = 2;
+    private WeightInit weightInit = WeightInit.RELU;
+    private IUpdater updater = new AdaDelta();
+    private CacheMode cacheMode = CacheMode.NONE;
+    private WorkspaceMode workspaceMode = WorkspaceMode.ENABLED;
+    private ConvolutionLayer.AlgoMode cudnnAlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST;
 
-    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "x"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
         new LegoClassification().run(args);
     }
 
-    public static String getOsName()
-    {
-        if(OS == null) { OS = System.getProperty("os.name"); }
+    public static String getOsName() {
+        if (OS == null) {
+            OS = System.getProperty("os.name");
+        }
         return OS;
     }
-    public static boolean isWindows()
-    {
+
+    public static boolean isWindows() {
         return getOsName().startsWith("Windows");
     }
 
@@ -121,7 +135,7 @@ public class LegoClassification {
         String pathname;
         if (isWindows()) {
             pathname = "C:\\projects\\lego-recognition-neural-java\\src\\main\\resources\\lego";
-        }else {
+        } else {
             pathname = "./src/main/resources/lego";
         }
         File mainPath = new File(pathname);
@@ -151,13 +165,19 @@ public class LegoClassification {
         log.info("Fitting to dataset");
         ImagePreProcessingScaler preProcessor = new ImagePreProcessingScaler(0, 1);
 
-        MultiLayerNetwork network;
+        NeuralNetwork network;
         switch (modelType) {
             case "LeNet":
                 network = lenetModel();
                 break;
             case "AlexNet":
                 network = alexnetModel();
+                break;
+            case "x":
+                network = init();
+                break;
+            case "res":
+                network = new InceptionRestNet().init();
                 break;
             default:
                 throw new InvalidInputTypeException("Incorrect model provided.");
@@ -168,8 +188,12 @@ public class LegoClassification {
         UIServer uiServer = UIServer.getInstance();
         StatsStorage statsStorage = new InMemoryStatsStorage();
         uiServer.attach(statsStorage);
-        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(iterations), new PerformanceListener(1));
-
+//        network.setListeners(new StatsListener( statsStorage),new ScoreIterationListener(iterations), new PerformanceListener(1));
+        if (network instanceof ComputationGraph) {
+            ((ComputationGraph) network).setListeners(new StatsListener(statsStorage), new ScoreIterationListener(iterations), new PerformanceListener(1));
+        } else {
+            ((MultiLayerNetwork) network).setListeners(new StatsListener(statsStorage), new ScoreIterationListener(iterations), new PerformanceListener(1));
+        }
         /**
          * Load data
          */
@@ -204,12 +228,17 @@ public class LegoClassification {
         dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
         preProcessor.fit(dataIter);
         dataIter.setPreProcessor(preProcessor);
-        Evaluation eval = network.evaluate(dataIter);
+        Evaluation eval = null;
+        if (network instanceof ComputationGraph) {
+            eval = ((ComputationGraph) network).evaluate(dataIter);
+        } else {
+            eval = ((MultiLayerNetwork) network).evaluate(dataIter);
+        }
         log.info(eval.stats(true));
 
         if (save) {
             log.info("Save model....");
-            ModelSerializer.writeModel(network,  "bird.bin", true);
+//            ModelSerializer.writeModel(network,  "bird.bin", true);
         }
         log.info("**************** Bird Classification finished ********************");
     }
@@ -227,7 +256,7 @@ public class LegoClassification {
     }
 
     private SubsamplingLayer maxPool(String name, int[] kernel) {
-        return new SubsamplingLayer.Builder(PoolingType.AVG, kernel, new int[]{2, 2}, new int[]{0,0}).name(name).build();
+        return new SubsamplingLayer.Builder(PoolingType.AVG, kernel, new int[]{2, 2}, new int[]{0, 0}).name(name).build();
     }
 
     private DenseLayer fullyConnected(String name, int out, double bias, double dropOut, Distribution dist) {
@@ -248,7 +277,7 @@ public class LegoClassification {
                 .list()
                 .layer(0, convInit("cnn1", channels, 50, new int[]{5, 5}, new int[]{1, 1}, new int[]{0, 0}, 1))
                 .layer(1, maxPool("maxpool1", new int[]{2, 2}))
-                .layer(2, conv5x5("cnn2", 100, new int[]{5, 5}, new int[]{1, 1}, 1  ))
+                .layer(2, conv5x5("cnn2", 100, new int[]{5, 5}, new int[]{1, 1}, 1))
                 .layer(3, maxPool("maxpool2", new int[]{2, 2}))
                 .layer(4, new DenseLayer.Builder().nOut(500).build())
                 .layer(5, new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
@@ -302,6 +331,165 @@ public class LegoClassification {
 
         return new MultiLayerNetwork(conf);
 
+    }
+
+    public ComputationGraph init() {
+        ComputationGraphConfiguration.GraphBuilder graph = graphBuilder();
+
+        graph.addInputs("input").setInputTypes(InputType.convolutional(inputShape[2], inputShape[1], inputShape[0]));
+
+        ComputationGraphConfiguration conf = graph.build();
+        ComputationGraph model = new ComputationGraph(conf);
+        model.init();
+
+        return model;
+    }
+
+    public ComputationGraphConfiguration.GraphBuilder graphBuilder() {
+
+        ComputationGraphConfiguration.GraphBuilder graph = new NeuralNetConfiguration.Builder().seed(seed)
+                .optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+                .updater(updater)
+                .weightInit(weightInit)
+                .l2(4e-5)
+                .miniBatch(true)
+                .cacheMode(cacheMode)
+                .trainingWorkspaceMode(workspaceMode)
+                .inferenceWorkspaceMode(workspaceMode)
+                .convolutionMode(ConvolutionMode.Truncate)
+                .graphBuilder();
+
+        graph
+                // block1
+                .addLayer("block1_conv1", new ConvolutionLayer.Builder(3, 3).stride(2, 2).nOut(32).hasBias(false)
+                        .cudnnAlgoMode(cudnnAlgoMode).build(), "input")
+                .addLayer("block1_conv1_bn", new BatchNormalization(), "block1_conv1")
+                .addLayer("block1_conv1_act", new ActivationLayer(Activation.RELU), "block1_conv1_bn")
+                .addLayer("block1_conv2", new ConvolutionLayer.Builder(3, 3).stride(1, 1).nOut(64).hasBias(false)
+                        .cudnnAlgoMode(cudnnAlgoMode).build(), "block1_conv1_act")
+                .addLayer("block1_conv2_bn", new BatchNormalization(), "block1_conv2")
+                .addLayer("block1_conv2_act", new ActivationLayer(Activation.RELU), "block1_conv2_bn")
+
+                // residual1
+                .addLayer("residual1_conv", new ConvolutionLayer.Builder(1, 1).stride(2, 2).nOut(128).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block1_conv2_act")
+                .addLayer("residual1", new BatchNormalization(), "residual1_conv")
+
+                // block2
+                .addLayer("block2_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(128).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block1_conv2_act")
+                .addLayer("block2_sepconv1_bn", new BatchNormalization(), "block2_sepconv1")
+                .addLayer("block2_sepconv1_act", new ActivationLayer(Activation.RELU), "block2_sepconv1_bn")
+                .addLayer("block2_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(128).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block2_sepconv1_act")
+                .addLayer("block2_sepconv2_bn", new BatchNormalization(), "block2_sepconv2")
+                .addLayer("block2_pool", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(3, 3).stride(2, 2)
+                        .convolutionMode(ConvolutionMode.Same).build(), "block2_sepconv2_bn")
+                .addVertex("add1", new ElementWiseVertex(ElementWiseVertex.Op.Add), "block2_pool", "residual1")
+
+                // residual2
+                .addLayer("residual2_conv", new ConvolutionLayer.Builder(1, 1).stride(2, 2).nOut(256).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "add1")
+                .addLayer("residual2", new BatchNormalization(), "residual2_conv")
+
+                // block3
+                .addLayer("block3_sepconv1_act", new ActivationLayer(Activation.RELU), "add1")
+                .addLayer("block3_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(256).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block3_sepconv1_act")
+                .addLayer("block3_sepconv1_bn", new BatchNormalization(), "block3_sepconv1")
+                .addLayer("block3_sepconv2_act", new ActivationLayer(Activation.RELU), "block3_sepconv1_bn")
+                .addLayer("block3_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(256).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block3_sepconv2_act")
+                .addLayer("block3_sepconv2_bn", new BatchNormalization(), "block3_sepconv2")
+                .addLayer("block3_pool", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(3, 3).stride(2, 2)
+                        .convolutionMode(ConvolutionMode.Same).build(), "block3_sepconv2_bn")
+                .addVertex("add2", new ElementWiseVertex(ElementWiseVertex.Op.Add), "block3_pool", "residual2")
+
+                // residual3
+                .addLayer("residual3_conv", new ConvolutionLayer.Builder(1, 1).stride(2, 2).nOut(728).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "add2")
+                .addLayer("residual3", new BatchNormalization(), "residual3_conv")
+
+                // block4
+                .addLayer("block4_sepconv1_act", new ActivationLayer(Activation.RELU), "add2")
+                .addLayer("block4_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block4_sepconv1_act")
+                .addLayer("block4_sepconv1_bn", new BatchNormalization(), "block4_sepconv1")
+                .addLayer("block4_sepconv2_act", new ActivationLayer(Activation.RELU), "block4_sepconv1_bn")
+                .addLayer("block4_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block4_sepconv2_act")
+                .addLayer("block4_sepconv2_bn", new BatchNormalization(), "block4_sepconv2")
+                .addLayer("block4_pool", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(3, 3).stride(2, 2)
+                        .convolutionMode(ConvolutionMode.Same).build(), "block4_sepconv2_bn")
+                .addVertex("add3", new ElementWiseVertex(ElementWiseVertex.Op.Add), "block4_pool", "residual3");
+
+        // towers
+        int residual = 3;
+        int block = 5;
+        for (int i = 0; i < 8; i++) {
+            String previousInput = "add" + residual;
+            String blockName = "block" + block;
+
+            graph
+                    .addLayer(blockName + "_sepconv1_act", new ActivationLayer(Activation.RELU), previousInput)
+                    .addLayer(blockName + "_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                            .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), blockName + "_sepconv1_act")
+                    .addLayer(blockName + "_sepconv1_bn", new BatchNormalization(), blockName + "_sepconv1")
+                    .addLayer(blockName + "_sepconv2_act", new ActivationLayer(Activation.RELU), blockName + "_sepconv1_bn")
+                    .addLayer(blockName + "_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                            .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), blockName + "_sepconv2_act")
+                    .addLayer(blockName + "_sepconv2_bn", new BatchNormalization(), blockName + "_sepconv2")
+                    .addLayer(blockName + "_sepconv3_act", new ActivationLayer(Activation.RELU), blockName + "_sepconv2_bn")
+                    .addLayer(blockName + "_sepconv3", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                            .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), blockName + "_sepconv3_act")
+                    .addLayer(blockName + "_sepconv3_bn", new BatchNormalization(), blockName + "_sepconv3")
+                    .addVertex("add" + (residual + 1), new ElementWiseVertex(ElementWiseVertex.Op.Add), blockName + "_sepconv3_bn", previousInput);
+
+            residual++;
+            block++;
+        }
+
+        // residual12
+        graph.addLayer("residual12_conv", new ConvolutionLayer.Builder(1, 1).stride(2, 2).nOut(1024).hasBias(false)
+                .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "add" + residual)
+                .addLayer("residual12", new BatchNormalization(), "residual12_conv");
+
+        // block13
+        graph
+                .addLayer("block13_sepconv1_act", new ActivationLayer(Activation.RELU), "add11")
+                .addLayer("block13_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(728).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block13_sepconv1_act")
+                .addLayer("block13_sepconv1_bn", new BatchNormalization(), "block13_sepconv1")
+                .addLayer("block13_sepconv2_act", new ActivationLayer(Activation.RELU), "block13_sepconv1_bn")
+                .addLayer("block13_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(1024).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block13_sepconv2_act")
+                .addLayer("block13_sepconv2_bn", new BatchNormalization(), "block13_sepconv2")
+                .addLayer("block13_pool", new SubsamplingLayer.Builder(SubsamplingLayer.PoolingType.MAX).kernelSize(3, 3).stride(2, 2)
+                        .convolutionMode(ConvolutionMode.Same).build(), "block13_sepconv2_bn")
+                .addVertex("add12", new ElementWiseVertex(ElementWiseVertex.Op.Add), "block13_pool", "residual12");
+
+        // block14
+        graph
+                .addLayer("block14_sepconv1", new SeparableConvolution2D.Builder(3, 3).nOut(1536).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "add12")
+                .addLayer("block14_sepconv1_bn", new BatchNormalization(), "block14_sepconv1")
+                .addLayer("block14_sepconv1_act", new ActivationLayer(Activation.RELU), "block14_sepconv1_bn")
+                .addLayer("block14_sepconv2", new SeparableConvolution2D.Builder(3, 3).nOut(2048).hasBias(false)
+                        .convolutionMode(ConvolutionMode.Same).cudnnAlgoMode(cudnnAlgoMode).build(), "block14_sepconv1_act")
+                .addLayer("block14_sepconv2_bn", new BatchNormalization(), "block14_sepconv2")
+                .addLayer("block14_sepconv2_act", new ActivationLayer(Activation.RELU), "block14_sepconv2_bn")
+
+                .addLayer("avg_pool", new GlobalPoolingLayer.Builder(PoolingType.AVG).build(), "block14_sepconv2_act")
+                .addLayer("predictions", new OutputLayer.Builder(LossFunctions.LossFunction.MCXENT)
+                        .nOut(numClasses)
+                        .activation(Activation.SOFTMAX).build(), "avg_pool")
+
+                .setOutputs("predictions")
+
+
+        ;
+
+        return graph;
     }
 
 }
