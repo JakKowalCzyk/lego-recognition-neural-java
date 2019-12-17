@@ -81,11 +81,11 @@ public class LegoClassification {
     protected static int width = 64;
 
     protected static int channels = 3;
-    protected static int batchSize = 10;// tested 50, 100, 200
+    protected static int batchSize = 100;// tested 50, 100, 200
     protected static long seed = 1234;
     protected static Random rng = new Random(seed);
-    protected static int iterations = 5;
-    protected static int nEpochs = 50; // tested 50, 100, 200
+    protected static int iterations = 1;
+    protected static int nEpochs = 5; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
@@ -122,7 +122,7 @@ public class LegoClassification {
         ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
         String pathname;
         if (isWindows()) {
-            pathname = "C:\\projects\\lego-recognition-neural-java\\src\\main\\resources\\lego";
+            pathname = "C:\\projects\\lego-recognition-neural-java\\src\\main\\resources\\lego2";
         } else {
             pathname = "./src/main/resources/lego";
         }
