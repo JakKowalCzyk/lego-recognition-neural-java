@@ -81,11 +81,11 @@ public class LegoClassification {
     protected static int width = 64;
 
     protected static int channels = 3;
-    protected static int batchSize = 150;// tested 50, 100, 200
+    protected static int batchSize = 10;// tested 50, 100, 200
     protected static long seed = 1234;
     protected static Random rng = new Random(seed);
     protected static int iterations = 5;
-    protected static int nEpochs = 2; // tested 50, 100, 200
+    protected static int nEpochs = 50; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
@@ -99,7 +99,7 @@ public class LegoClassification {
     private WorkspaceMode workspaceMode = WorkspaceMode.ENABLED;
     private ConvolutionLayer.AlgoMode cudnnAlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST;
 
-    protected static String modelType = "x"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
@@ -135,7 +135,7 @@ public class LegoClassification {
         /**
          * Split data: 80% training and 20% testing
          */
-        InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
+        InputSplit[] inputSplit = fileSplit.sample(null, splitTrainTest, 1 - splitTrainTest);
         InputSplit trainData = inputSplit[0];
         InputSplit testData = inputSplit[1];
 
