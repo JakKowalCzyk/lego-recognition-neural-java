@@ -85,7 +85,7 @@ public class LegoClassification {
     protected static long seed = 1234;
     protected static Random rng = new Random(seed);
     protected static int iterations = 5;
-    protected static int nEpochs = 100; // tested 50, 100, 200
+    protected static int nEpochs = 200; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
