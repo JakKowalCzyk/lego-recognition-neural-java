@@ -85,7 +85,7 @@ public class LegoClassification {
     protected static long seed = 1234;
     protected static Random rng = new Random(seed);
     protected static int iterations = 5;
-    protected static int nEpochs = 200; // tested 50, 100, 200
+    protected static int nEpochs = 10; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
@@ -99,7 +99,7 @@ public class LegoClassification {
     private WorkspaceMode workspaceMode = WorkspaceMode.ENABLED;
     private ConvolutionLayer.AlgoMode cudnnAlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST;
 
-    protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "x"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
