@@ -99,7 +99,7 @@ public class LegoClassification {
     private WorkspaceMode workspaceMode = WorkspaceMode.ENABLED;
     private ConvolutionLayer.AlgoMode cudnnAlgoMode = ConvolutionLayer.AlgoMode.PREFER_FASTEST;
 
-    protected static String modelType = "LeNet"; // LeNet, AlexNet or Custom but you need to fill it out
+    protected static String modelType = "AlexNet"; // LeNet, AlexNet or Custom but you need to fill it out
 
 
     public static void main(String[] args) throws Exception {
