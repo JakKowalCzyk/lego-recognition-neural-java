@@ -71,7 +71,7 @@ public class AnimalsClassification {
     protected static int height = 100;
     protected static int width = 100;
     protected static int channels = 3;
-    protected static int batchSize = 20;
+    protected static int batchSize = 100;
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
