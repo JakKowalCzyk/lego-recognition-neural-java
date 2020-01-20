@@ -167,15 +167,15 @@ public class AnimalsClassification {
         network.fit(trainIter);
 
         // Train with transformations
-        for (ImageTransform transform : transforms) {
-            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
-            recordReader.initialize(trainData, transform);
-            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
-            scaler.fit(dataIter);
-            dataIter.setPreProcessor(scaler);
-            trainIter = new MultipleEpochsIterator(epochs, dataIter);
-            network.fit(trainIter);
-        }
+//        for (ImageTransform transform : transforms) {
+//            System.out.print("\nTraining on transformation: " + transform.getClass().toString() + "\n\n");
+//            recordReader.initialize(trainData, transform);
+//            dataIter = new RecordReaderDataSetIterator(recordReader, batchSize, 1, numLabels);
+//            scaler.fit(dataIter);
+//            dataIter.setPreProcessor(scaler);
+//            trainIter = new MultipleEpochsIterator(epochs, dataIter);
+//            network.fit(trainIter);
+//        }
 
         log.info("Evaluate model....");
         recordReader.initialize(testData);
