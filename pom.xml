@@ -22,7 +22,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2.1</version>
                 <configuration>
-                    <mainClass>kow.kowal.AnimalsClassification</mainClass>
+                    <mainClass>kow.kowal.Dl4j</mainClass>
                     <arguments>
                         <argument>argument1</argument>
                     </arguments>
@@ -63,6 +63,11 @@
             <artifactId>cuda</artifactId>
             <version>10.1-7.5-1.5</version>
             <classifier>linux-x86_64-redist</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-zoo</artifactId>
+            <version>1.0.0-beta4</version>
         </dependency>
     </dependencies>
 
