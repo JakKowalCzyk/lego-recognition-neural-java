@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
@@ -332,6 +333,7 @@ public class Dl4j {
 
             // Create Eval object with 10 possible classes
             Evaluation eval = new Evaluation(classes);
+
             return eval;
         }
 
@@ -367,6 +369,16 @@ public class Dl4j {
             }
 
             log.info("Eval Stats : \r\n{}", eval.stats());
+
+            dataIterator.reset();
+            DataSet testDataSet = dataIterator.next();
+            List<String> allClassLabels = recordReader.getLabels();
+            int labelIndex = testDataSet.getLabels().argMax(1).getInt(0);
+            int[] predictedClasses = model.predict(testDataSet.getFeatures());
+            String expectedResult = allClassLabels.get(labelIndex);
+            String modelPrediction = allClassLabels.get(predictedClasses[0]);
+            System.out.print("\nFor a single example that is labeled " + expectedResult + " the model predicted " + modelPrediction + "\n\n");
+
         }
     }
 
