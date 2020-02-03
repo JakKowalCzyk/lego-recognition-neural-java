@@ -155,7 +155,7 @@ public class Dl4j {
                 .withTerminateAfterBatches(batches);
         MultiLayerNetwork multiLayerNetwork = new MultiLayerNetwork(model);
         multiLayerNetwork = p.setup(multiLayerNetwork);
-        multiLayerNetwork.fit(p.getDataIterator());
+        multiLayerNetwork.fit(p.getDataIterator(), 50);
         p.evaluateMln(multiLayerNetwork);
     }
 
