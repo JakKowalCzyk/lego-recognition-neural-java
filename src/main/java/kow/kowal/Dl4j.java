@@ -276,8 +276,7 @@ public class Dl4j {
             startUiServer();
             initReaders();
             prepareEval();
-            graph.setListeners( new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END),
-                    checkpointListener());
+            graph.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
             return graph;
 
         }
