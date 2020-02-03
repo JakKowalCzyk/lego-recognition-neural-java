@@ -1,12 +1,10 @@
 package kow.kowal;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Random;
-
+import org.datavec.api.io.filters.BalancedPathFilter;
 import org.datavec.api.io.labels.ParentPathLabelGenerator;
 import org.datavec.api.records.listener.impl.LogRecordListener;
 import org.datavec.api.split.FileSplit;
+import org.datavec.api.split.InputSplit;
 import org.datavec.image.loader.NativeImageLoader;
 import org.datavec.image.recordreader.ImageRecordReader;
 import org.deeplearning4j.api.storage.StatsStorage;
@@ -21,20 +19,8 @@ import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
-import org.deeplearning4j.ui.storage.FileStatsStorage;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
-import org.deeplearning4j.zoo.model.AlexNet;
-import org.deeplearning4j.zoo.model.Darknet19;
-import org.deeplearning4j.zoo.model.LeNet;
-import org.deeplearning4j.zoo.model.NASNet;
-import org.deeplearning4j.zoo.model.ResNet50;
-import org.deeplearning4j.zoo.model.SimpleCNN;
-import org.deeplearning4j.zoo.model.SqueezeNet;
-import org.deeplearning4j.zoo.model.UNet;
-import org.deeplearning4j.zoo.model.VGG16;
-import org.deeplearning4j.zoo.model.VGG19;
-import org.deeplearning4j.zoo.model.Xception;
-
+import org.deeplearning4j.zoo.model.*;
 import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -43,6 +29,13 @@ import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.ImagePreProcessingScaler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
+import java.util.Random;
+
+import static java.lang.Math.toIntExact;
 
 public class Dl4j {
 
@@ -145,7 +138,7 @@ public class Dl4j {
         RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 2)
                 .withTerminateAfterBatches(batches);
         graph = p.setup(graph);
-        graph.fit(p.getDataIterator(), 40);
+        graph.fit(p.getDataIterator(), 10);
         p.evaluateCg(graph);
     }
 
@@ -155,7 +148,7 @@ public class Dl4j {
                 .withTerminateAfterBatches(batches);
         MultiLayerNetwork multiLayerNetwork = new MultiLayerNetwork(model);
         multiLayerNetwork = p.setup(multiLayerNetwork);
-        multiLayerNetwork.fit(p.getDataIterator(), 50);
+        multiLayerNetwork.fit(p.getDataIterator(), 20);
         p.evaluateMln(multiLayerNetwork);
     }
 
@@ -175,10 +168,11 @@ public class Dl4j {
         private FileSplit testFilesplit;
         private ImageRecordReader recordReader;
         private DataSetIterator testIter;
+        Evaluation eval;
 
         private StatsStorage statsStorage;
 
-        private void startUiServer() throws IOException {
+        private void startUiServer() {
             // Initialize the user interface backend
             UIServer uiServer = UIServer.getInstance();
             // Configure where the network information (gradients, score vs. time etc) is to
@@ -223,15 +217,28 @@ public class Dl4j {
         }
 
         private void initReaders() throws IOException {
-            File trainData = new File(basepath + "/train");
-            File testData = new File(basepath + "/test");
+//            File trainData = new File(basepath + "/train");
+//            File testData = new File(basepath + "/test");
+
+
+            ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
+            File mainPath = new File("./src/main/resources/lego");
+            FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, new Random());
+            int numExamples = toIntExact(fileSplit.length());
+            int numLabels = Objects.requireNonNull(fileSplit.getRootDir().listFiles(File::isDirectory)).length; //This only works if your root is clean: only label subdirs.
+            BalancedPathFilter pathFilter = new BalancedPathFilter(new Random(), labelMaker, numExamples, numLabels, numExamples);
+
+            double splitTrainTest = 0.8;
+            InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
+            InputSplit train = inputSplit[0];
+            InputSplit testFilesplit = inputSplit[1];
 
             // Define the FileSplit(PATH, ALLOWED FORMATS,random)
-            FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, new Random());
-            testFilesplit = new FileSplit(testData, NativeImageLoader.ALLOWED_FORMATS, new Random());
+//            FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, new Random());
+//            testFilesplit = new FileSplit(testData, NativeImageLoader.ALLOWED_FORMATS, new Random());
 
             // Extract the parent path as the image label
-            ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
+//            ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
 
             recordReader = new ImageRecordReader(height, width, channels, labelMaker);
 
@@ -325,13 +332,12 @@ public class Dl4j {
             log.info("Test labels : {}", testlabels);
 
             // Create Eval object with 10 possible classes
-            Evaluation eval = new Evaluation(classes);
+            this.eval = new Evaluation(classes);
             return eval;
         }
 
-        private void evaluateCg(ComputationGraph model) throws IOException {
+        private void evaluateCg(ComputationGraph model) {
 
-            Evaluation eval = prepareEval();
 
 //			// Evaluate the network
             while (testIter.hasNext()) {
@@ -347,9 +353,8 @@ public class Dl4j {
             log.info("Eval Stats : \r\n{}", eval.stats());
         }
 
-        private void evaluateMln(MultiLayerNetwork model) throws IOException {
+        private void evaluateMln(MultiLayerNetwork model) {
 
-            Evaluation eval = prepareEval();
 
 //			// Evaluate the network
             while (testIter.hasNext()) {
