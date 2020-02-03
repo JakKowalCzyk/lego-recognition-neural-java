@@ -139,7 +139,7 @@ public class Dl4j {
         RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 2)
                 .withTerminateAfterBatches(batches);
         graph = p.setup(graph);
-        graph.fit(p.getDataIterator(), 10);
+        graph.fit(p.getDataIterator(), 20);
         p.evaluateCg(graph);
     }
 
