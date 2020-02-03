@@ -284,6 +284,7 @@ public class Dl4j {
         public MultiLayerNetwork setup(MultiLayerNetwork model) throws Exception {
             startUiServer();
             initReaders();
+            prepareEval();
             model.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()),
                     new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END),
                     checkpointListener());
