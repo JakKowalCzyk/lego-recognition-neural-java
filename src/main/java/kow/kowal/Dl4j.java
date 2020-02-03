@@ -168,7 +168,6 @@ public class Dl4j {
         private InputSplit testFilesplit;
         private ImageRecordReader recordReader;
         private DataSetIterator testIter;
-        Evaluation eval;
 
         private StatsStorage statsStorage;
 
@@ -332,12 +331,12 @@ public class Dl4j {
             log.info("Test labels : {}", testlabels);
 
             // Create Eval object with 10 possible classes
-            this.eval = new Evaluation(classes);
+            Evaluation eval = new Evaluation(classes);
             return eval;
         }
 
-        private void evaluateCg(ComputationGraph model) {
-
+        private void evaluateCg(ComputationGraph model) throws IOException {
+            Evaluation eval = prepareEval();
 
 //			// Evaluate the network
             while (testIter.hasNext()) {
@@ -353,8 +352,8 @@ public class Dl4j {
             log.info("Eval Stats : \r\n{}", eval.stats());
         }
 
-        private void evaluateMln(MultiLayerNetwork model) {
-
+        private void evaluateMln(MultiLayerNetwork model) throws IOException {
+            Evaluation eval = prepareEval();
 
 //			// Evaluate the network
             while (testIter.hasNext()) {
