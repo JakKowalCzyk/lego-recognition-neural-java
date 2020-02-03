@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testDarknet();
+        new Dl4j().testSqueezeNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -347,11 +347,15 @@ public class Dl4j {
 
                 for (INDArray arr : model.output(testFeatures)) {
                     eval.eval(next.getLabels(), arr);
+                    log.info(eval.stats());
                 }
 
             }
 
             log.info("Eval Stats : \r\n{}", eval.stats());
+
+            System.out.println(eval.confusionToString());
+
         }
 
         private void evaluateMln(MultiLayerNetwork model) throws IOException {
@@ -365,7 +369,7 @@ public class Dl4j {
 
                 INDArray output = model.output(testFeatures);
                 eval.eval(testLabels, output);
-
+                log.info(eval.stats());
             }
 
             log.info("Eval Stats : \r\n{}", eval.stats());
