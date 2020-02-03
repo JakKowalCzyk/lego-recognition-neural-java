@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testLeNet();
+        new Dl4j().testAlexNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -65,9 +65,8 @@ public class Dl4j {
 
     public void testAlexNet() throws Exception {
         // invalid ..
-        AlexNet build = org.deeplearning4j.zoo.model.AlexNet.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
-        MultiLayerConfiguration net = build.conf();
+//        AlexNet build = org.deeplearning4j.zoo.model.AlexNet.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
+        MultiLayerConfiguration net = new AnimalsClassification().alexnetModel2();
         runMultiLayerConfiguration(net, 100);
     }
 

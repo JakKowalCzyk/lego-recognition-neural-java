@@ -68,8 +68,8 @@ import static java.lang.Math.toIntExact;
 
 public class AnimalsClassification {
     protected static final Logger log = LoggerFactory.getLogger(AnimalsClassification.class);
-    protected static int height = 100;
-    protected static int width = 100;
+    protected static int height = 128;
+    protected static int width = 128;
     protected static int channels = 3;
     protected static int batchSize = 100;
 
@@ -254,7 +254,7 @@ public class AnimalsClassification {
 
     }
 
-    private MultiLayerNetwork alexnetModel() {
+    public MultiLayerNetwork alexnetModel() {
         /*
          * AlexNet model interpretation based on the original paper ImageNet Classification with Deep Convolutional Neural Networks
          * and the imagenetExample code referenced.
@@ -293,6 +293,47 @@ public class AnimalsClassification {
                 .build();
 
         return new MultiLayerNetwork(conf);
+
+    }
+
+    public MultiLayerConfiguration alexnetModel2() {
+        /*
+         * AlexNet model interpretation based on the original paper ImageNet Classification with Deep Convolutional Neural Networks
+         * and the imagenetExample code referenced.
+         * http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks.pdf
+         */
+
+        double nonZeroBias = 1;
+        double dropOut = 0.5;
+
+        return new NeuralNetConfiguration.Builder()
+                .seed(seed)
+                .weightInit(new NormalDistribution(0.0, 0.01))
+                .activation(Activation.RELU)
+                .updater(new AdaDelta())
+                .gradientNormalization(GradientNormalization.RenormalizeL2PerLayer) // normalize to prevent vanishing or exploding gradients
+                .l2(5 * 1e-4)
+                .list()
+                .layer(convInit("cnn1", channels, 96, new int[]{11, 11}, new int[]{4, 4}, new int[]{3, 3}, 0))
+                .layer(new LocalResponseNormalization.Builder().name("lrn1").build())
+                .layer(maxPool("maxpool1", new int[]{3, 3}))
+                .layer(conv5x5("cnn2", 256, new int[]{1, 1}, new int[]{2, 2}, nonZeroBias))
+                .layer(new LocalResponseNormalization.Builder().name("lrn2").build())
+                .layer(maxPool("maxpool2", new int[]{3, 3}))
+                .layer(conv3x3("cnn3", 384, 0))
+                .layer(conv3x3("cnn4", 384, nonZeroBias))
+                .layer(conv3x3("cnn5", 256, nonZeroBias))
+                .layer(maxPool("maxpool3", new int[]{3, 3}))
+                .layer(fullyConnected("ffn1", 4096, nonZeroBias, dropOut, new NormalDistribution(0, 0.005)))
+                .layer(fullyConnected("ffn2", 4096, nonZeroBias, dropOut, new NormalDistribution(0, 0.005)))
+                .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
+                        .name("output")
+                        .nOut(numLabels)
+                        .activation(Activation.SOFTMAX)
+                        .build())
+                .setInputType(InputType.convolutional(height, width, channels))
+                .build();
+
 
     }
 
