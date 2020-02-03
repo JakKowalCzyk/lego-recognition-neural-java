@@ -165,7 +165,7 @@ public class Dl4j {
 
         private DataSetIterator dataIterator;
         private String trainingLabels;
-        private FileSplit testFilesplit;
+        private InputSplit testFilesplit;
         private ImageRecordReader recordReader;
         private DataSetIterator testIter;
         Evaluation eval;
@@ -231,7 +231,7 @@ public class Dl4j {
             double splitTrainTest = 0.8;
             InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
             InputSplit train = inputSplit[0];
-            InputSplit testFilesplit = inputSplit[1];
+            testFilesplit = inputSplit[1];
 
             // Define the FileSplit(PATH, ALLOWED FORMATS,random)
 //            FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, new Random());
