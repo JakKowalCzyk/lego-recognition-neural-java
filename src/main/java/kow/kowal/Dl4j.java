@@ -55,7 +55,7 @@ public class Dl4j {
     public void testSimpleCNNNet() throws Exception {
         // needs reconfiguration
         SimpleCNN build = org.deeplearning4j.zoo.model.SimpleCNN.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         MultiLayerConfiguration net = build.conf();
 
         runMultiLayerConfiguration(net, 100);
@@ -64,7 +64,7 @@ public class Dl4j {
     public void testNASNet() throws Exception {
         //invalid
         NASNet build = org.deeplearning4j.zoo.model.NASNet.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 500);
     }
@@ -72,7 +72,7 @@ public class Dl4j {
     public void testAlexNet() throws Exception {
         // invalid ..
         AlexNet build = org.deeplearning4j.zoo.model.AlexNet.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         MultiLayerConfiguration net = build.conf();
         runMultiLayerConfiguration(net, 100);
     }
@@ -89,14 +89,14 @@ public class Dl4j {
     public void testUNet() throws Exception {
         // invalid
         UNet build = org.deeplearning4j.zoo.model.UNet.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 500);
     }
 
     public void testSqueezeNet() throws Exception {
         SqueezeNet build = org.deeplearning4j.zoo.model.SqueezeNet.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 500);
     }
@@ -112,14 +112,14 @@ public class Dl4j {
     public void testResnet() throws Exception {
         // invalid ..
         ResNet50 build = org.deeplearning4j.zoo.model.ResNet50.builder().seed(123).inputShape(new int[] { 3, 128, 128 })
-                .numClasses(20).build();
+                .numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 100);
     }
 
     public void testDarknet() throws Exception {
         Darknet19 build = org.deeplearning4j.zoo.model.Darknet19.builder().seed(123)
-                .inputShape(new int[] { 3, 128, 128 }).numClasses(20).build();
+                .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 100);
     }
@@ -127,7 +127,7 @@ public class Dl4j {
     public void testVGG16() throws Exception {
         // runs into NAN
         VGG16 build = org.deeplearning4j.zoo.model.VGG16.builder().seed(123).inputShape(new int[] { 3, 128, 128 })
-                .numClasses(20).build();
+                .numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 100);
     }
@@ -135,14 +135,14 @@ public class Dl4j {
     public void testVGG19() throws Exception {
         // runs into NAN
         VGG19 build = org.deeplearning4j.zoo.model.VGG19.builder().seed(123).inputShape(new int[] { 3, 128, 128 })
-                .numClasses(20).build();
+                .numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 100);
 
     }
 
     private void runComputationGraph(ComputationGraph graph, int batches) throws Exception {
-        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 20)
+        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 2)
                 .withTerminateAfterBatches(batches);
         graph = p.setup(graph);
         graph.fit(p.getDataIterator());
@@ -151,7 +151,7 @@ public class Dl4j {
 
     private void runMultiLayerConfiguration(MultiLayerConfiguration model, int batches) throws Exception {
 
-        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 20)
+        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 1, 2)
                 .withTerminateAfterBatches(batches);
         MultiLayerNetwork multiLayerNetwork = new MultiLayerNetwork(model);
         multiLayerNetwork = p.setup(multiLayerNetwork);
