@@ -20,6 +20,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.FileStatsStorage;
+import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
 import org.deeplearning4j.zoo.model.AlexNet;
 import org.deeplearning4j.zoo.model.Darknet19;
 import org.deeplearning4j.zoo.model.LeNet;
@@ -181,13 +182,14 @@ public class Dl4j {
             // Configure where the network information (gradients, score vs. time etc) is to
             // be stored. Here: store in memory.
 //            statsStorage = new FileStatsStorage(File.createTempFile("stats", "")); // Alternative: new
+            statsStorage  = new InMemoryStatsStorage();
             // FileStatsStorage(File),
             // for
             // saving
             // and loading later
             // Attach the StatsStorage instance to the UI: this allows the contents of the
             // StatsStorage to be visualized
-//            uiServer.attach(statsStorage);
+            uiServer.attach(statsStorage);
 
         }
 
