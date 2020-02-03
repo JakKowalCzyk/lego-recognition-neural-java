@@ -180,14 +180,14 @@ public class Dl4j {
             UIServer uiServer = UIServer.getInstance();
             // Configure where the network information (gradients, score vs. time etc) is to
             // be stored. Here: store in memory.
-            statsStorage = new FileStatsStorage(File.createTempFile("stats", "")); // Alternative: new
+//            statsStorage = new FileStatsStorage(File.createTempFile("stats", "")); // Alternative: new
             // FileStatsStorage(File),
             // for
             // saving
             // and loading later
             // Attach the StatsStorage instance to the UI: this allows the contents of the
             // StatsStorage to be visualized
-            uiServer.attach(statsStorage);
+//            uiServer.attach(statsStorage);
 
         }
 
