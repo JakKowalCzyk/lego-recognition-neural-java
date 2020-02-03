@@ -180,7 +180,7 @@ public class Dl4j {
             UIServer uiServer = UIServer.getInstance();
             // Configure where the network information (gradients, score vs. time etc) is to
             // be stored. Here: store in memory.
-            statsStorage = new FileStatsStorage(new File("D:/development/dart-net/stats")); // Alternative: new
+            statsStorage = new FileStatsStorage(new File("~/stats")); // Alternative: new
             // FileStatsStorage(File),
             // for
             // saving
