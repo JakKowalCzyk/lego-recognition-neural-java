@@ -15,7 +15,9 @@ import org.deeplearning4j.datasets.iterator.EarlyTerminationDataSetIterator;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.graph.ComputationGraph;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.optimize.api.InvocationType;
 import org.deeplearning4j.optimize.listeners.CheckpointListener;
+import org.deeplearning4j.optimize.listeners.EvaluativeListener;
 import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
@@ -273,7 +275,7 @@ public class Dl4j {
         private ComputationGraph setup(ComputationGraph graph) throws Exception {
             startUiServer();
             initReaders();
-            graph.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()),
+            graph.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()), new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END),
                     checkpointListener());
             return graph;
 
@@ -283,6 +285,7 @@ public class Dl4j {
             startUiServer();
             initReaders();
             model.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()),
+                    new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END),
                     checkpointListener());
             return model;
         }
