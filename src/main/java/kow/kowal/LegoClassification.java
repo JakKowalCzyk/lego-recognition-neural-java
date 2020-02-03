@@ -42,6 +42,7 @@ import org.deeplearning4j.optimize.listeners.ScoreIterationListener;
 import org.deeplearning4j.ui.api.UIServer;
 import org.deeplearning4j.ui.stats.StatsListener;
 import org.deeplearning4j.ui.storage.InMemoryStatsStorage;
+import org.deeplearning4j.zoo.model.Xception;
 import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
@@ -154,7 +155,7 @@ public class LegoClassification {
         ImagePreProcessingScaler preProcessor = new ImagePreProcessingScaler(0, 1);
 
         NeuralNetwork network;
-        switch (modelType) {
+        switch ("x") {
             case "LeNet":
                 network = lenetModel();
                 break;
@@ -162,7 +163,11 @@ public class LegoClassification {
                 network = alexnetModel();
                 break;
             case "x":
-                network = init();
+                Xception build = org.deeplearning4j.zoo.model.Xception.builder().seed(123)
+                        .inputShape(new int[] { 3, width, height }).numClasses(20).build();
+//                ComputationGraph init = build.init();
+                network = build.init();
+//                network = init();
                 break;
 //            case "res":
 //                network = new InceptionRestNet().init();
