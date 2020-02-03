@@ -328,7 +328,7 @@ public class AnimalsClassification {
                 .layer(fullyConnected("ffn2", 4096, nonZeroBias, dropOut, new NormalDistribution(0, 0.005)))
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .name("output")
-                        .nOut(numLabels)
+                        .nOut(2)
                         .activation(Activation.SOFTMAX)
                         .build())
                 .setInputType(InputType.convolutional(height, width, channels))
