@@ -49,7 +49,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testSimpleCNNNet();
+        new Dl4j().testNASNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
