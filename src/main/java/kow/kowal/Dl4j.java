@@ -175,12 +175,12 @@ public class Dl4j {
 
         private StatsStorage statsStorage;
 
-        private void startUiServer() {
+        private void startUiServer() throws IOException {
             // Initialize the user interface backend
             UIServer uiServer = UIServer.getInstance();
             // Configure where the network information (gradients, score vs. time etc) is to
             // be stored. Here: store in memory.
-            statsStorage = new FileStatsStorage(new File("~/stats")); // Alternative: new
+            statsStorage = new FileStatsStorage(File.createTempFile("stats", "")); // Alternative: new
             // FileStatsStorage(File),
             // for
             // saving
