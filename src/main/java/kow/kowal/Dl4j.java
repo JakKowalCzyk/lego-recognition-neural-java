@@ -101,7 +101,7 @@ public class Dl4j {
     public void testLeNet() throws Exception {
         // converges pretty fast
         LeNet build = org.deeplearning4j.zoo.model.LeNet.builder().seed(123).inputShape(new int[] { 3, 128, 128 })
-                .numClasses(20).build();
+                .numClasses(2).build();
         MultiLayerConfiguration net = build.conf();
         runMultiLayerConfiguration(net, 100);
     }
