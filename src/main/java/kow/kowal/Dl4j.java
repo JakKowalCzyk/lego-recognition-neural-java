@@ -49,7 +49,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testDarknet();
+        new Dl4j().testLeNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -286,8 +286,7 @@ public class Dl4j {
             initReaders();
             prepareEval();
             model.setListeners(new ScoreIterationListener(5), new StatsListener(getStatsStorage()),
-                    new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END),
-                    checkpointListener());
+                    new EvaluativeListener(testIter, 1, InvocationType.EPOCH_END));
             return model;
         }
 
