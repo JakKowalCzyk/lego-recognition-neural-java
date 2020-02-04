@@ -71,11 +71,11 @@ public class AnimalsClassification {
     protected static int height = 128;
     protected static int width = 128;
     protected static int channels = 3;
-    protected static int batchSize = 100;
+    protected static int batchSize = 25;
 
     protected static long seed = 42;
     protected static Random rng = new Random(seed);
-    protected static int epochs = 100;
+    protected static int epochs = 20;
     protected static boolean save = false;
 
     private int numLabels;
@@ -130,7 +130,7 @@ public class AnimalsClassification {
 
         MultiLayerNetwork network;
         // LeNet, AlexNet or Custom but you need to fill it out
-        String modelType = "LeNet";
+        String modelType = "AlexNet";
         switch (modelType) {
             //noinspection ConstantConditions
             case "LeNet":
