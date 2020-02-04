@@ -329,7 +329,7 @@ public class AnimalsClassification {
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.NEGATIVELOGLIKELIHOOD)
                         .name("output")
                         .nOut(2)
-                        .activation(Activation.TANH)
+                        .activation(Activation.SOFTMAX)
                         .build())
                 .setInputType(InputType.convolutional(height, width, channels))
                 .build();
