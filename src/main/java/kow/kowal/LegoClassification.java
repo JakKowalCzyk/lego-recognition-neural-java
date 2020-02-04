@@ -78,8 +78,8 @@ import java.util.Random;
 
 public class LegoClassification {
     private static final Logger log = LoggerFactory.getLogger(LegoClassification.class);
-    protected static int height = 64;
-    protected static int width = 64;
+    protected static int height = 128;
+    protected static int width = 128;
 
     protected static int channels = 3;
     protected static int batchSize = 100;// tested 50, 100, 200
