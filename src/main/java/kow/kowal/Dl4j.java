@@ -224,7 +224,7 @@ public class Dl4j {
 
 
             ParentPathLabelGenerator labelMaker = new ParentPathLabelGenerator();
-            File mainPath = new File("./src/main/resources/lego");
+            File mainPath = new File("/home/wmi/lego-recognition-neural-java//src/main/resources/lego");
             FileSplit fileSplit = new FileSplit(mainPath, NativeImageLoader.ALLOWED_FORMATS, new Random());
             int numExamples = toIntExact(fileSplit.length());
             int numLabels = Objects.requireNonNull(fileSplit.getRootDir().listFiles(File::isDirectory)).length; //This only works if your root is clean: only label subdirs.
@@ -234,6 +234,9 @@ public class Dl4j {
             InputSplit[] inputSplit = fileSplit.sample(pathFilter, splitTrainTest, 1 - splitTrainTest);
             InputSplit train = inputSplit[0];
             testFilesplit = inputSplit[1];
+
+            log.info(String.valueOf(train.length()));
+            log.info(String.valueOf(testFilesplit.length()));
 
             // Define the FileSplit(PATH, ALLOWED FORMATS,random)
 //            FileSplit train = new FileSplit(trainData, NativeImageLoader.ALLOWED_FORMATS, new Random());
