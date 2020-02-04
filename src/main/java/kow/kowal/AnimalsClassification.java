@@ -130,7 +130,7 @@ public class AnimalsClassification {
 
         MultiLayerNetwork network;
         // LeNet, AlexNet or Custom but you need to fill it out
-        String modelType = "AlexNet";
+        String modelType = "LeNet";
         switch (modelType) {
             //noinspection ConstantConditions
             case "LeNet":
