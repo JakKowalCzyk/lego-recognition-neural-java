@@ -55,13 +55,13 @@
         </dependency>
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-10.1</artifactId>
+            <artifactId>deeplearning4j-cuda-10.2</artifactId>
             <version>1.0.0-beta4</version>
         </dependency>
         <dependency>
             <groupId>org.bytedeco</groupId>
             <artifactId>cuda</artifactId>
-            <version>10.1-7.5-1.5</version>
+            <version>10.2-7.6-1.5.2</version>
             <classifier>linux-x86_64-redist</classifier>
         </dependency>
         <dependency>
