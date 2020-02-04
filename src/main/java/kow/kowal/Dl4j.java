@@ -50,7 +50,6 @@ public class Dl4j {
         // needs reconfiguration
         SimpleCNN build = org.deeplearning4j.zoo.model.SimpleCNN.builder().seed(123)
                 .inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
-        build.initPretrained();
         MultiLayerConfiguration net = build.conf();
 
         runMultiLayerConfiguration(net, 100);
