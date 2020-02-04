@@ -135,7 +135,7 @@ public class Dl4j {
     }
 
     private void runComputationGraph(ComputationGraph graph, int batches) throws Exception {
-        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 25, 2)
+        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 5, 2)
                 .withTerminateAfterBatches(batches);
         graph = p.setup(graph);
         graph.fit(p.getDataIterator(), 20);
@@ -144,7 +144,7 @@ public class Dl4j {
 
     private void runMultiLayerConfiguration(MultiLayerConfiguration model, int batches) throws Exception {
 
-        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 25, 2)
+        RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 5, 2)
                 .withTerminateAfterBatches(batches);
         MultiLayerNetwork multiLayerNetwork = new MultiLayerNetwork(model);
         multiLayerNetwork = p.setup(multiLayerNetwork);
