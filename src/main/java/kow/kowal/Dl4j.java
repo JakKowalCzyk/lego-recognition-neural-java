@@ -360,14 +360,16 @@ public class Dl4j {
             Evaluation eval = prepareEval();
 
 //			// Evaluate the network
-            while (testIter.hasNext()) {
-                DataSet next = testIter.next();
-                INDArray testFeatures = next.getFeatures();
-                INDArray testLabels = next.getLabels();
+//            while (testIter.hasNext()) {
+//                DataSet next = testIter.next();
+//                INDArray testFeatures = next.getFeatures();
+//                INDArray testLabels = next.getLabels();
+//
+//                INDArray output = model.output(testFeatures);
+//                eval.eval(testLabels, output);
+//            }
 
-                INDArray output = model.output(testFeatures);
-                eval.eval(testLabels, output);
-            }
+            model.doEvaluation(testIter, eval);
 
             log.info("Eval Stats : \r\n{}", eval.stats());
 
