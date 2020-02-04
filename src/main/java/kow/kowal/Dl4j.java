@@ -346,7 +346,6 @@ public class Dl4j {
 
                 for (INDArray arr : model.output(testFeatures)) {
                     eval.eval(next.getLabels(), arr);
-                    log.info(eval.stats());
                 }
 
             }
@@ -368,7 +367,6 @@ public class Dl4j {
 
                 INDArray output = model.output(testFeatures);
                 eval.eval(testLabels, output);
-                log.info(eval.stats());
             }
 
             log.info("Eval Stats : \r\n{}", eval.stats());
