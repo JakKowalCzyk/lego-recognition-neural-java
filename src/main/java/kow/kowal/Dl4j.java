@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testVGG16();
+        new Dl4j().testResnet();
     }
 
     public void testSimpleCNNNet() throws Exception {
