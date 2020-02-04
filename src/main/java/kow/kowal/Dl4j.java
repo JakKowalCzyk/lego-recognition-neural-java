@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testLeNet();
+        new Dl4j().testXceptionNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -75,9 +75,9 @@ public class Dl4j {
 
     public void testXceptionNet() throws Exception {
         // 121 layer oO .. produces high load even on single batches
-//        Xception build = org.deeplearning4j.zoo.model.Xception.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
+        Xception build = org.deeplearning4j.zoo.model.Xception.builder().seed(123).inputShape(new int[]{3, 128, 128}).numClasses(2).build();
 //        FaceNetNN4Small2 build = org.deeplearning4j.zoo.model.FaceNetNN4Small2.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
-        FaceNetNN4Small2 build = org.deeplearning4j.zoo.model.FaceNetNN4Small2.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
+//        FaceNetNN4Small2 build = org.deeplearning4j.zoo.model.FaceNetNN4Small2.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
         ComputationGraph init = build.init();
         runComputationGraph(init, 500);
     }
