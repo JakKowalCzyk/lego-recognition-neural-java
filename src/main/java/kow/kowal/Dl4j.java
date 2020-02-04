@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testUNet();
+        new Dl4j().testXceptionNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -136,7 +136,7 @@ public class Dl4j {
 
     private void runComputationGraph(ComputationGraph graph, int batches) throws Exception {
         RunProvisioner p = new RunProvisioner("/home/wmi/lego-recognition-neural-java/src/main/resources/lego", 128, 128, 3, 5, 2).withTerminateAfterBatches(batches);
-//        RunProvisioner p = new RunProvisioner("C:\\projects\\lego-recognition-neural-java\\src\\main\\resources\\lego", 128, 128, 3, 5, 2).withTerminateAfterBatches(batches);
+//        RunProvisioner p = new RunProvisioner("C:\\projects\\lego-recognition-neural-java\\lego2", 128, 128, 3, 5, 2).withTerminateAfterBatches(batches);
         graph = p.setup(graph);
         graph.fit(p.getDataIterator(), 20);
         p.evaluateCg(graph);
