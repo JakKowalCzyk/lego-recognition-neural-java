@@ -43,7 +43,7 @@ public class Dl4j {
     private Logger log = LoggerFactory.getLogger(getClass());
 
     public static void main(String[] args) throws Exception {
-        new Dl4j().testXceptionNet();
+        new Dl4j().testLeNet();
     }
 
     public void testSimpleCNNNet() throws Exception {
@@ -99,7 +99,7 @@ public class Dl4j {
         LeNet build = org.deeplearning4j.zoo.model.LeNet.builder().seed(123).inputShape(new int[] { 3, 128, 128 })
                 .numClasses(2).build();
         MultiLayerConfiguration net = build.conf();
-        runMultiLayerConfiguration(net, 100);
+        runMultiLayerConfiguration(net, 10000);
     }
 
     public void testResnet() throws Exception {
