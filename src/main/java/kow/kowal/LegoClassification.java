@@ -86,7 +86,7 @@ public class LegoClassification {
     protected static long seed = 1234;
     protected static Random rng = new Random(seed);
     protected static int iterations = 5;
-    protected static int nEpochs = 1; // tested 50, 100, 200
+    protected static int nEpochs = 10; // tested 50, 100, 200
     protected static double splitTrainTest = 0.8;
     protected static boolean save = true;
     private int numLabels;
@@ -147,7 +147,7 @@ public class LegoClassification {
         ImageTransform flipTransform1 = new FlipImageTransform(rng);
         ImageTransform flipTransform2 = new FlipImageTransform(new Random(123));
 
-        List<ImageTransform> transforms = Arrays.asList(new ImageTransform[]{flipTransform1, flipTransform2});
+        List<ImageTransform> transforms = Arrays.asList(flipTransform1, flipTransform2);
         /**
          * Normalization
          **/
@@ -155,7 +155,7 @@ public class LegoClassification {
         ImagePreProcessingScaler preProcessor = new ImagePreProcessingScaler(0, 1);
 
         NeuralNetwork network;
-        switch ("x") {
+        switch ("LeNet") {
             case "LeNet":
                 network = lenetModel();
                 break;
