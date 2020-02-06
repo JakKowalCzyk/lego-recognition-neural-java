@@ -65,10 +65,10 @@ public class Dl4j {
 
     public void testAlexNet() throws Exception {
         // invalid ..
-//        AlexNet build = org.deeplearning4j.zoo.model.AlexNet.builder().seed(123).inputShape(new int[] { 3, 128, 128 }).numClasses(2).build();
-//        MultiLayerConfiguration net = build.conf();
-
-        MultiLayerConfiguration net = new AnimalsClassification().alexnetModel2();
+        AlexNet build = org.deeplearning4j.zoo.model.AlexNet.builder().seed(123).inputShape(new int[]{1, 128, 128}).numClasses(2).build();
+        MultiLayerConfiguration net = build.conf();
+//
+//        MultiLayerConfiguration net = new AnimalsClassification().alexnetModel2();
         runMultiLayerConfiguration(net, 100);
     }
 
