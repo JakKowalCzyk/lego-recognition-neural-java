@@ -40,14 +40,16 @@
         <dependency>
             <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-core</artifactId>
-            <version>1.0.0-beta6</version>
+            <version>1.0.0-beta4</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-ui -->
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-ui</artifactId>
-            <version>1.0.0-beta6</version>
+            <artifactId>deeplearning4j-ui_2.11</artifactId>
+            <version>1.0.0-beta4</version>
         </dependency>
+
 
         <!--        <dependency>-->
 <!--            <groupId>org.nd4j</groupId>-->
@@ -56,25 +58,28 @@
 <!--        </dependency>-->
         <dependency>
             <groupId>org.nd4j</groupId>
-            <artifactId>nd4j-cuda-10.2-platform</artifactId>
-            <version>1.0.0-beta6</version>
+            <artifactId>nd4j-cuda-10.0-platform</artifactId>
+            <version>1.0.0-beta4</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-cuda-10.0 -->
+        <dependency>
+            <groupId>org.deeplearning4j</groupId>
+            <artifactId>deeplearning4j-cuda-10.0</artifactId>
+            <version>1.0.0-beta4</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.bytedeco/cuda-platform -->
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>cuda-platform</artifactId>
+            <version>10.0-7.4-1.5</version>
         </dependency>
 
         <dependency>
             <groupId>org.deeplearning4j</groupId>
-            <artifactId>deeplearning4j-cuda-10.2</artifactId>
-            <version>1.0.0-beta6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bytedeco</groupId>
-            <artifactId>cuda</artifactId>
-            <version>10.2-7.6-1.5.2</version>
-            <classifier>linux-x86_64-redist</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.deeplearning4j</groupId>
             <artifactId>deeplearning4j-zoo</artifactId>
-            <version>1.0.0-beta6</version>
+            <version>1.0.0-beta4</version>
         </dependency>
     </dependencies>
 
